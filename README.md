@@ -1,3 +1,9 @@
-Gestion de pedidos : productos, inventarios, pedido, excepciones, 
-Es un proyecto en .net10 para gestionar pedidos y productos con reglas dee stock y su total
-esta actuamente “En construcción: API en ASP.NET Core + Angular”.
+# Inventario .NET
+
+Gestión de productos y pedidos con reglas de stock. Proyecto en .NET 10 / C#.
+
+**Estado:** en construcción. Próximo: API en ASP.NET Core + frontend en Angular.
+
+## Ejecutar
+cd Inventario.Consola
+dotnet run

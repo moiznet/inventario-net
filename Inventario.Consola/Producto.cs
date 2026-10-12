@@ -3,9 +3,9 @@
 public class Producto
 {
     public int Id { get; init; }
-    public string Nombre { get; set; } = string.Empty;
-    public decimal Precio { get; set; }
-    public int stock { get; private set; }
+    public string Nombre { get; } = string.Empty;
+    public decimal Precio { get; }
+    public int Stock { get; private set; }
  
 
     public Producto(int id, string nombre, decimal precio, int stock)
@@ -13,7 +13,7 @@ public class Producto
         Id = id;
         Nombre = nombre;
         Precio = precio;
-        this.stock = stock;
+        Stock = stock;
     
 
         if (stock < 0){
@@ -29,25 +29,20 @@ public class Producto
     }
 
     public void DescontarStock(int cantidad){
-            if (cantidad < 0)
+            if (cantidad <= 0)
             {
                 throw new ArgumentException("La cantidad a descontar no puede ser negativa", nameof(cantidad));
             }
 
-            if (cantidad > stock)
+            if (cantidad > Stock)
             {
                
-                throw new StockInsuficienteException(Nombre,cantidad,stock);
+                throw new StockInsuficienteException(Nombre,cantidad,Stock);
             }
 
-            stock -= cantidad;
+            Stock -= cantidad;
     }
- 
-    public async Task<ProductoDto> createDto(int Id)
-    {
-        await Task.Delay(3000);
-        return new ProductoDto(Id,"teclado",300000);
-    }
+  
 }
 
 

@@ -1,8 +1,4 @@
 ﻿ 
-using System.Globalization;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
- 
   
 Dictionary<int, Producto> inventario = new Dictionary<int, Producto>
 {
@@ -49,7 +45,7 @@ async Task<Pedido> CrearPedidoAsync(int idPedido,List<(int ProductoId, int Canti
             Console.WriteLine($"No se pudo agregar {ex.Nombre}: pediste {ex.Cantidad}, solo hay {ex.Stock}.");
 
         }
-        catch (InvalidOperationException ex)
+        catch (ArgumentException ex)
         {
             Console.WriteLine($"No se pudo agregar {producto.Nombre}: {ex.Message}");
         }
@@ -62,18 +58,11 @@ async Task<Producto?> ObtenerProductoAsync(int id)
 {
     await Task.Delay(1000);
     
-    if(inventario.TryGetValue(id,out var producto))
-    {
-        return inventario[id];
-    }
-    else
-    {
-        return null;
-    }
+    return inventario.TryGetValue(id, out var producto) ? producto : null;
 
 }
 
-void ImprimirLineas(IEnumerable<LineaPedido> lineas)
+void ImprimirLineas(IEnumerable<Producto> lineas)
 {
     foreach (var linea in lineas)
     {
@@ -82,12 +71,12 @@ void ImprimirLineas(IEnumerable<LineaPedido> lineas)
 }
 
 
-void ImprimirInventarioActulizado(List<Producto> productos)
+void ImprimirInventarioActualizado(List<Producto> productos)
 {
     Console.WriteLine("\nInventario actualizado:\n");
     foreach (var producto in productos)
     {
-        Console.WriteLine($"Producto: {producto.Nombre} - Stock: {producto.stock}");
+        Console.WriteLine($"Producto: {producto.Nombre} - Stock: {producto.Stock}");
     }
 }
 
@@ -96,9 +85,9 @@ var objectopedido = await CrearPedidoAsync(1, carrito);
 Console.WriteLine($"\nPedido #{objectopedido.Id} - {objectopedido.Fecha} \n");
 ImprimirLineas(objectopedido.Lineas);
 
-Console.WriteLine($"\nTotal: ${objectopedido.Total:F0} \n");
+Console.WriteLine($"\nTotal: ${objectopedido.Total:N0} \n");
 
-ImprimirInventarioActulizado(inventario.Values.ToList());
+ImprimirInventarioActualizado(inventario.Values);
 
 
 
