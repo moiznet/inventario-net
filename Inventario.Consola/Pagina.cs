@@ -1,0 +1,1 @@
+public record Pagina<T>(List<T> Items, int NumeroPagina, int TotalItems);
