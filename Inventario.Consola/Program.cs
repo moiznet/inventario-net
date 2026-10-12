@@ -62,7 +62,7 @@ async Task<Producto?> ObtenerProductoAsync(int id)
 
 }
 
-void ImprimirLineas(IEnumerable<Producto> lineas)
+void ImprimirLineas(IEnumerable<LineaPedido> lineas)
 {
     foreach (var linea in lineas)
     {
@@ -87,7 +87,7 @@ ImprimirLineas(objectopedido.Lineas);
 
 Console.WriteLine($"\nTotal: ${objectopedido.Total:N0} \n");
 
-ImprimirInventarioActualizado(inventario.Values);
+ImprimirInventarioActualizado(inventario.Values.ToList());
 
 
 

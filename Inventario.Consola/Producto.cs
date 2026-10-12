@@ -31,7 +31,7 @@ public class Producto
     public void DescontarStock(int cantidad){
             if (cantidad <= 0)
             {
-                throw new ArgumentException("La cantidad a descontar no puede ser negativa", nameof(cantidad));
+                throw new ArgumentException("El stock no puede ser negativo", nameof(Stock));
             }
 
             if (cantidad > Stock)
