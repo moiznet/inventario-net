@@ -2,10 +2,7 @@
 public class Pedido
 {
     
-    public record LineaPedido( int ProductoId, string NombreProducto, int Cantidad, decimal ValorUnitario)
-    {
-        public decimal Subtotal => Cantidad * ValorUnitario;
-    };
+    
     
     public int Id { get; }
     public DateTime Fecha  { get;  }

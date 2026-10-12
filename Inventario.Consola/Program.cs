@@ -73,7 +73,7 @@ async Task<Producto?> ObtenerProductoAsync(int id)
 
 }
 
-void ImprimirLineas(IEnumerable<Pedido.LineaPedido> lineas)
+void ImprimirLineas(IEnumerable<LineaPedido> lineas)
 {
     foreach (var linea in lineas)
     {
