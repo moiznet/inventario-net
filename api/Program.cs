@@ -1,23 +1,23 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
+// ── FASE 1: registrar servicios ──
+builder.Services.AddControllers();  // conecta con los controllers
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi();      // crear documentacio
 
 var app = builder.Build();
-
+// ── FASE 2: configurar el pipeline (middleware) ──
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi(); // epxone openapi para desarrollo
 }
 
-app.UseHttpsRedirection();
+app.UseHttpsRedirection();   // redirige solicitudes http a https
 
-app.UseAuthorization();
+app.UseAuthorization();     // revisa permisos se usa para jwt
 
-app.MapControllers();
+app.MapControllers(); //conecta las rutas con os controllers
 
-app.Run();
+app.Run(); // ejecuta el servidor
