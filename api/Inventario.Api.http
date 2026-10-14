@@ -1,9 +1,39 @@
 @baseUrl = http://localhost:5285
 
-### Listar
+# Los datos viven en memoria: al reiniciar la API vuelven los 3 productos iniciales
+# (1 Mouse, stock 10 · 2 Teclado, stock 5 · 3 Monitor, stock 3).
+
+###############################################
+# LISTAR Y CONSULTAR
+###############################################
+
+### Listar todos → 200
 GET {{baseUrl}}/api/productos
 
-### Crear
+### Obtener por Id (existe) → 200
+GET {{baseUrl}}/api/productos/1
+
+### Obtener por Id (no existe) → 404
+GET {{baseUrl}}/api/productos/99
+
+###############################################
+# BUSCAR
+###############################################
+
+### Buscar por nombre (sin importar mayúsculas) → 200
+GET {{baseUrl}}/api/productos/buscar?nombre=TECLA
+
+### Buscar sin coincidencias → 200 con lista vacía
+GET {{baseUrl}}/api/productos/buscar?nombre=impresora
+
+### Buscar sin el parámetro nombre → 400
+GET {{baseUrl}}/api/productos/buscar
+
+###############################################
+# CREAR
+###############################################
+
+### Crear producto → 201 + header Location
 POST {{baseUrl}}/api/productos
 Content-Type: application/json
 
@@ -12,3 +42,59 @@ Content-Type: application/json
   "precio": 80000,
   "stock": 7
 }
+
+### Crear con precio negativo → hoy lanza error 500 (lo arreglamos con validación en el tema 4)
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Producto malo",
+  "precio": -100,
+  "stock": 1
+}
+
+###############################################
+# DESCONTAR STOCK
+###############################################
+
+### Descontar stock válido → 200 con el producto actualizado
+POST {{baseUrl}}/api/productos/1/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 2
+}
+
+### Descontar más de lo que hay → 409
+POST {{baseUrl}}/api/productos/3/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 10
+}
+
+### Descontar cantidad inválida → 400
+POST {{baseUrl}}/api/productos/1/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 0
+}
+
+### Descontar de un producto que no existe → 404
+POST {{baseUrl}}/api/productos/99/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 1
+}
+
+###############################################
+# ELIMINAR (al final, porque borra datos)
+###############################################
+
+### Eliminar producto → 204
+DELETE {{baseUrl}}/api/productos/2
+
+### Eliminar el mismo otra vez → 404
+DELETE {{baseUrl}}/api/productos/2

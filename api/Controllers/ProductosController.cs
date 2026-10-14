@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Inventario.Api.Models;
+
 
 namespace Inventario.Api.Controllers;
 
