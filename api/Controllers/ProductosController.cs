@@ -13,9 +13,8 @@ public class ProductosController : ControllerBase
         new Producto(3, "Monitor", 850_000m, 3)
     ];
 
-    public record CrearProductoRequest(string Nombre, decimal Precio, int Stock);
 
-    public record DescontarStockRequest(int Cantidad);
+
 
     [HttpGet]
     public IEnumerable<Producto> GetAll()
@@ -37,14 +36,14 @@ public class ProductosController : ControllerBase
     [HttpPost]
     public ActionResult<Producto> CreateProducto(CrearProductoRequest request)
     {
-        var nuevoId = _productos.Count == 0 ? 0 : _productos.Max(p => p.Id);
+        var nuevoId = _productos.Count == 0 ? 0 : _productos.Max(p => p.Id) + 1;
         var producto = new Producto(nuevoId, request.Nombre, request.Precio, request.Stock);
         _productos.Add(producto); 
         return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);    
     }
 
     [HttpGet("buscar")]
-    public ActionResult<IEnumerable<Producto>> GetByName(string nombre)
+    public ActionResult<IEnumerable<Producto>> GetByName(string? nombre)
     {   
         if (string.IsNullOrWhiteSpace(nombre))
         return BadRequest("Debes enviar el parámetro 'nombre'.");
@@ -67,7 +66,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPost("{id}/descontar-stock")]
-    public ActionResult DescontarStock(int id, DescontarStockRequest request)
+    public ActionResult<Producto> DescontarStock(int id, DescontarStockRequest request)
     {
         var producto = _productos.FirstOrDefault(p => p.Id == id);
         if (producto is null)
