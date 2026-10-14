@@ -1,6 +1,14 @@
-@Inventario.Api_HostAddress = http://localhost:5285
+@baseUrl = http://localhost:5285
 
-GET {{Inventario.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Listar
+GET {{baseUrl}}/api/productos
 
-###
+### Crear
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Audífonos",
+  "precio": 80000,
+  "stock": 7
+}

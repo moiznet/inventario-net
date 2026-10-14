@@ -13,6 +13,10 @@ public class ProductosController : ControllerBase
         new Producto(3, "Monitor", 850_000m, 3)
     ];
 
+    public record CrearProductoRequest(string Nombre, decimal Precio, int Stock);
+
+    public record DescontarStockRequest(int Cantidad);
+
     [HttpGet]
     public IEnumerable<Producto> GetAll()
     {
@@ -20,7 +24,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Producto> Get(int id)
+    public ActionResult<Producto> GetById(int id)
     {
         var producto = _productos.FirstOrDefault(p => p.Id == id);
         if (producto == null)
@@ -28,5 +32,60 @@ public class ProductosController : ControllerBase
             return NotFound();
         }
         return producto;
+    }
+
+    [HttpPost]
+    public ActionResult<Producto> CreateProducto(CrearProductoRequest request)
+    {
+        var nuevoId = _productos.Count == 0 ? 0 : _productos.Max(p => p.Id);
+        var producto = new Producto(nuevoId, request.Nombre, request.Precio, request.Stock);
+        _productos.Add(producto); 
+        return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);    
+    }
+
+    [HttpGet("buscar")]
+    public ActionResult<IEnumerable<Producto>> GetByName(string nombre)
+    {   
+        if (string.IsNullOrWhiteSpace(nombre))
+        return BadRequest("Debes enviar el parámetro 'nombre'.");
+
+        List<Producto> productos = _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList();
+        return productos;
+    }
+
+    [HttpDelete("{id}")]
+    public ActionResult DeleteProducto(int id)
+    {
+        var producto = _productos.FirstOrDefault(p => p.Id == id);
+        if (producto == null)
+        {
+            return NotFound();
+        }
+        _productos.Remove(producto);
+        return NoContent();
+
+    }
+
+    [HttpPost("{id}/descontar-stock")]
+    public ActionResult DescontarStock(int id, DescontarStockRequest request)
+    {
+        var producto = _productos.FirstOrDefault(p => p.Id == id);
+        if (producto is null)
+        {
+            return NotFound();
+        }
+        try
+        {
+            producto.DescontarStock(request.Cantidad);
+            return Ok(producto);
+        }
+        catch(StockInsuficienteException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
