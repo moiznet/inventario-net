@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Inventario.Api.Models;
+using Inventario.Api.Dtos;
 
 
 namespace Inventario.Api.Controllers;
@@ -19,39 +20,39 @@ public class ProductosController : ControllerBase
 
 
     [HttpGet]
-    public IEnumerable<Producto> GetAll()
+    public IEnumerable<ProductoResponse> GetAll()
     {
-        return _productos;
+        return _productos.Select(p => ProductoResponse.Desde(p)).ToList();
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Producto> GetById(int id)
+    public ActionResult<ProductoResponse> GetById(int id)
     {
         var producto = _productos.FirstOrDefault(p => p.Id == id);
         if (producto == null)
         {
             return NotFound();
         }
-        return producto;
+        return ProductoResponse.Desde(producto);
     }
 
     [HttpPost]
-    public ActionResult<Producto> CreateProducto(CrearProductoRequest request)
+    public ActionResult<ProductoResponse> CreateProducto(CrearProductoRequest request)
     {
-        var nuevoId = _productos.Count == 0 ? 0 : _productos.Max(p => p.Id) + 1;
+        var nuevoId = _productos.Count == 0 ? 1 : _productos.Max(p => p.Id) + 1;
         var producto = new Producto(nuevoId, request.Nombre, request.Precio, request.Stock);
         _productos.Add(producto); 
-        return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);    
+        return CreatedAtAction(nameof(GetById), new { id = producto.Id }, ProductoResponse.Desde(producto));    
     }
 
     [HttpGet("buscar")]
-    public ActionResult<IEnumerable<Producto>> GetByName(string? nombre)
+    public ActionResult<IEnumerable<ProductoResponse>> GetByName(string? nombre)
     {   
         if (string.IsNullOrWhiteSpace(nombre))
         return BadRequest("Debes enviar el parámetro 'nombre'.");
 
         List<Producto> productos = _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList();
-        return productos;
+        return productos.Select(p => ProductoResponse.Desde(p)).ToList();
     }
 
     [HttpDelete("{id}")]
@@ -68,7 +69,7 @@ public class ProductosController : ControllerBase
     }
 
     [HttpPost("{id}/descontar-stock")]
-    public ActionResult<Producto> DescontarStock(int id, DescontarStockRequest request)
+    public ActionResult<ProductoResponse> DescontarStock(int id, DescontarStockRequest request)
     {
         var producto = _productos.FirstOrDefault(p => p.Id == id);
         if (producto is null)
@@ -78,7 +79,7 @@ public class ProductosController : ControllerBase
         try
         {
             producto.DescontarStock(request.Cantidad);
-            return Ok(producto);
+            return Ok(ProductoResponse.Desde(producto));
         }
         catch(StockInsuficienteException ex)
         {
