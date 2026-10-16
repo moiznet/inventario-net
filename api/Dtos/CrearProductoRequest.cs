@@ -6,7 +6,7 @@ public record CrearProductoRequest(
     [StringLength(100, MinimumLength = 1, ErrorMessage = "El nombre debe tener entre 1 y 100 caracteres")]
     string Nombre, 
     
-    [Range(typeof(decimal), "0", "100000000", ErrorMessage = "El precio debe ser mayor que cero")]
+    [Range(typeof(decimal), "0.01", "100000000", ErrorMessage = "El precio debe estar entre 0,01 y 100.000.000")]
     decimal Precio, 
     
     

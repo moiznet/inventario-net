@@ -7,7 +7,7 @@
 # LISTAR Y CONSULTAR
 ###############################################
 
-### Listar todos → 200
+### Listar todos → 200 (cada producto trae tieneStock)
 GET {{baseUrl}}/api/productos
 
 ### Obtener por Id (existe) → 200
@@ -43,7 +43,21 @@ Content-Type: application/json
   "stock": 7
 }
 
-### Crear con precio negativo → hoy lanza error 500 (lo arreglamos con validación en el tema 4)
+### Crear con el precio mínimo permitido (0,01) → 201
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Sticker",
+  "precio": 0.01,
+  "stock": 100
+}
+
+###############################################
+# CREAR: VALIDACIONES (DataAnnotations → 400 automático)
+###############################################
+
+### Precio negativo → 400
 POST {{baseUrl}}/api/productos
 Content-Type: application/json
 
@@ -51,6 +65,56 @@ Content-Type: application/json
   "nombre": "Producto malo",
   "precio": -100,
   "stock": 1
+}
+
+### Precio en cero → 400
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Gratis",
+  "precio": 0,
+  "stock": 1
+}
+
+### Precio mayor al máximo → 400
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Carísimo",
+  "precio": 200000000,
+  "stock": 1
+}
+
+### Nombre vacío → 400
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "precio": 5000,
+  "stock": 1
+}
+
+### Stock negativo → 400
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "Cable",
+  "precio": 5000,
+  "stock": -5
+}
+
+### Varios errores a la vez → 400 con un error por campo
+POST {{baseUrl}}/api/productos
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "precio": -1,
+  "stock": -1
 }
 
 ###############################################
@@ -73,12 +137,28 @@ Content-Type: application/json
   "cantidad": 10
 }
 
-### Descontar cantidad inválida → 400
+### Descontar todo el stock → 200 con tieneStock en false
+POST {{baseUrl}}/api/productos/3/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 3
+}
+
+### Cantidad en cero → 400 (validación automática del DTO)
 POST {{baseUrl}}/api/productos/1/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 0
+}
+
+### Cantidad mayor a 1000 → 400 (validación automática del DTO)
+POST {{baseUrl}}/api/productos/1/descontar-stock
+Content-Type: application/json
+
+{
+  "cantidad": 2000
 }
 
 ### Descontar de un producto que no existe → 404
