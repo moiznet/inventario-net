@@ -1,4 +1,5 @@
 using Inventario.Api.Services ;
+using Inventario.Api.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,10 @@ builder.Services.AddControllers();  // conecta con los controllers
 builder.Services.AddOpenApi();      // crear documentacio
 
 builder.Services.AddSingleton<IProductoService, ProductoServices>(); // registra el servicio de productos como singleton    
+
+builder.Services.Configure<InventarioOptions>(                  //
+    builder.Configuration.GetSection(InventarioOptions.Seccion) // registrar la clase que se creo como esta en el setings.json
+);                                                              //
 
 var app = builder.Build();
 // ── FASE 2: configurar el pipeline (middleware) ──

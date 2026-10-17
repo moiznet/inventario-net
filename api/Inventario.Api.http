@@ -178,3 +178,11 @@ DELETE {{baseUrl}}/api/productos/2
 
 ### Eliminar el mismo otra vez → 404
 DELETE {{baseUrl}}/api/productos/2
+
+
+###############################################
+# STOCK BAJO 
+###############################################
+
+### Obtener stock bajo 
+GET {{baseUrl}}/api/productos/stock-bajo

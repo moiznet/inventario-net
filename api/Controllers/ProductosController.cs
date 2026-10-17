@@ -79,4 +79,12 @@ public class ProductosController( IProductoService productoService ) : Controlle
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("stock-bajo")]
+    public ActionResult<Producto> GetStockBajo()
+    {
+        var productos = productoService.ObtenerStockBajo();
+        return Ok(productos.Select(p => ProductoResponse.Desde(p) ).ToList());
+
+    }
 }

@@ -1,9 +1,13 @@
 
 using Inventario.Api.Models;
+using Inventario.Api.Options;
+using Microsoft.Extensions.Options;
 namespace Inventario.Api.Services;
 
-public class ProductoServices: IProductoService
+public class ProductoServices(IOptions<InventarioOptions> options): IProductoService
 {   
+
+    private readonly InventarioOptions _opciones = options.Value;
     private readonly List<Producto> _productos =
     [
         new Producto(1, "Mouse", 50_000m, 10),
@@ -55,6 +59,11 @@ public class ProductoServices: IProductoService
         return producto;
 
      
+    }
+    public IEnumerable<Producto> ObtenerStockBajo()
+    {
+        return _productos.Where(p => p.Stock <= _opciones.UmbralStockbajo);
+
     }
 
 
