@@ -36,7 +36,7 @@ public class ProductosController( IProductoService productoService ) : Controlle
     }
 
     [HttpGet("buscar")]
-    public ActionResult<IEnumerable<ProductoResponse>> GetByName(string nombre)
+    public ActionResult<IEnumerable<ProductoResponse>> GetByName(string? nombre)
     {   
         if (string.IsNullOrWhiteSpace(nombre))
         return BadRequest("Debes enviar el parámetro 'nombre'.");

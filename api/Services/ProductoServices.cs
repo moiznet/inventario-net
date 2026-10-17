@@ -4,7 +4,7 @@ namespace Inventario.Api.Services;
 
 public class ProductoServices: IProductoService
 {   
-    private static readonly List<Producto> _productos =
+    private readonly List<Producto> _productos =
     [
         new Producto(1, "Mouse", 50_000m, 10),
         new Producto(2, "Teclado", 120_000m, 5),
@@ -28,7 +28,7 @@ public class ProductoServices: IProductoService
         return producto;
     }
 
-    public IEnumerable<Producto> ObtenerPorNombre(string? nombre)
+    public IEnumerable<Producto> ObtenerPorNombre(string nombre)
     {
        List<Producto> productos = _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList(); 
        return productos;
@@ -47,6 +47,10 @@ public class ProductoServices: IProductoService
     public Producto? QuitarDeStock(int id, int cantidad)
     {
         var producto = _productos.FirstOrDefault(p => p.Id == id);
+        if (producto == null)
+        {
+            return null;
+        }
         producto.DescontarStock(cantidad);
         return producto;
 
