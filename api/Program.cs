@@ -1,3 +1,5 @@
+using Inventario.Api.Services ;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();  // conecta con los controllers
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();      // crear documentacio
+
+builder.Services.AddSingleton<IProductoService, ProductoServices>(); // registra el servicio de productos como singleton    
 
 var app = builder.Build();
 // ── FASE 2: configurar el pipeline (middleware) ──
