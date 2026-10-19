@@ -61,30 +61,23 @@ public class ProductosController( IProductoService productoService ) : Controlle
     public ActionResult<ProductoResponse> DescontarStock(int id, DescontarStockRequest request)
     {
        
-        try
-        {
+       
             var producto = productoService.QuitarDeStock(id, request.Cantidad);
             if (producto == null)
             {
                 return NotFound();
             }
             return Ok(ProductoResponse.Desde(producto));
-        }
-        catch(StockInsuficienteException ex)
-        {
-            return Conflict(ex.Message);
-        }
-        catch(ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+       
     }
 
     [HttpGet("stock-bajo")]
-    public ActionResult<Producto> GetStockBajo()
+    public ActionResult<IEnumerable<ProductoResponse>> GetStockBajo()
     {
         var productos = productoService.ObtenerStockBajo();
         return Ok(productos.Select(p => ProductoResponse.Desde(p) ).ToList());
 
     }
+
+    //[HttpGet("error")] public IActionResult Error() => throw new Exception("algo explotó");
 }

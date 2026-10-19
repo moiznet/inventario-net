@@ -4,7 +4,7 @@ using Inventario.Api.Options;
 using Microsoft.Extensions.Options;
 namespace Inventario.Api.Services;
 
-public class ProductoServices(IOptions<InventarioOptions> options): IProductoService
+public class ProductoServices(IOptions<InventarioOptions> options, ILogger<ProductoServices> logger): IProductoService
 {   
 
     private readonly InventarioOptions _opciones = options.Value;
@@ -29,6 +29,7 @@ public class ProductoServices(IOptions<InventarioOptions> options): IProductoSer
         var nuevoId = _productos.Count == 0 ? 1 : _productos.Max(p => p.Id) + 1;
         var producto = new Producto(nuevoId, nombre, precio, stock);
         _productos.Add(producto);
+        logger.LogInformation("Producto creado: {Id} {Nombre}", producto.Id, producto.Nombre);
         return producto;
     }
 
@@ -46,6 +47,7 @@ public class ProductoServices(IOptions<InventarioOptions> options): IProductoSer
             return false;
         }
         _productos.Remove(producto);
+        logger.LogInformation("Producto eliminado: {Id} {Nombre}", producto.Id, producto.Nombre);
         return true;
     }
     public Producto? QuitarDeStock(int id, int cantidad)
@@ -56,13 +58,16 @@ public class ProductoServices(IOptions<InventarioOptions> options): IProductoSer
             return null;
         }
         producto.DescontarStock(cantidad);
+        if (producto.Stock == 0)
+            logger.LogWarning("Producto Agotado en Stock: {Id} {Nombre}", producto.Id, producto.Nombre);
+        
         return producto;
 
      
     }
     public IEnumerable<Producto> ObtenerStockBajo()
     {
-        return _productos.Where(p => p.Stock <= _opciones.UmbralStockbajo);
+        return _productos.Where(p => p.Stock <= _opciones.UmbralStockBajo);
 
     }
 

@@ -1,9 +1,14 @@
 namespace Inventario.Api.Options;
 
+using System.ComponentModel.DataAnnotations;
 
-public class InventarioOptions()
+public class InventarioOptions
 {
     public const string Seccion = "Inventario";
-    public int UmbralStockbajo  {get; set;} 
+    
+    [Range(1,1000)]
+    public int UmbralStockBajo  {get; set;}
+
+    [Required] 
     public string NombreTienda {get; set;} = string.Empty;   // ✅ arranca vacío, no null
 }
