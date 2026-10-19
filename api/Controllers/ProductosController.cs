@@ -79,5 +79,4 @@ public class ProductosController( IProductoService productoService ) : Controlle
 
     }
 
-    //[HttpGet("error")] public IActionResult Error() => throw new Exception("algo explotó");
 }
