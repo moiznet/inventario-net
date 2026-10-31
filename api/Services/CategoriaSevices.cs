@@ -50,6 +50,9 @@ public class CategoriaServices(ILogger<ProductoServices> logger): ICategoriaServ
     public bool  DeleteCategoria(int id)
     {
         var categoria = _Categorias.FirstOrDefault(p => p.Id == id);
+        if (categoria is null)
+        return false;
+         
         return _Categorias.Remove(categoria);
        
         

@@ -56,13 +56,14 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
     [HttpDelete("{id}")]
     public IActionResult EliminarCategoria(int id)
     {
-        if (categoriaService.getById(id) is null)
-            throw new ArgumentException($"La categoría {id} no existe");
-
+ 
         if (productoService.GetProductByCat(id).Any())
         return Conflict("No se puede eliminar una categoría que tiene productos.");
 
-        categoriaService.DeleteCategoria(id);
+        if(!categoriaService.DeleteCategoria(id))
+            return NotFound();
+
+            
         return NoContent();
 
     }
