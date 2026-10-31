@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-namespace Inventario.Api.controller;
+namespace Inventario.Api.controllers;
 using Inventario.Api.Services;
 using Inventario.Api.Dtos;
 using Inventario.Api.Models;
@@ -18,7 +18,7 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
     [HttpGet("{id}")]
     public ActionResult<CategoriaResponse> GetCategoriaPorId(int id)
     {
-        var categoria = categoriaService.getById(id);
+        var categoria = categoriaService.ObtenerPorId(id);
         if(categoria == null)
         {
             return NotFound();
@@ -27,15 +27,18 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
 
     }
     [HttpGet("{id}/productos")]
-    public IEnumerable<ProductoResponse> GetProductosDeCategoria(int id)
-    {
+    public ActionResult<IEnumerable<ProductoResponse>> GetProductosDeCategoria(int id)
+    {   
+        if (categoriaService.ObtenerPorId(id) is null)  
+            return NotFound();
+
         return productoService.GetProductByCat(id).Select(p => ProductoResponse.Desde(p)).ToList();
 
     }
     [HttpPost]
     public ActionResult<CategoriaResponse> Crearcategoria(CrearCategoriaRequest request){
 
-        if (!categoriaService.ExistName(request.Nombre))
+        if (categoriaService.ExistName(request.Nombre))
             throw new ArgumentException($"El nombre de categoria {request.Nombre} ya existe");
 
         var NuevaCat = categoriaService.CreateCategory(request.Nombre);
@@ -48,7 +51,7 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
         var udated = categoriaService.UpdateCat(id,request.Nombre);
         if(udated == false)
         {
-            throw new ArgumentException($"La categoría {id} no existe");
+            return NotFound();
         }
         return NoContent(); 
 
@@ -63,7 +66,7 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
         if(!categoriaService.DeleteCategoria(id))
             return NotFound();
 
-            
+
         return NoContent();
 
     }

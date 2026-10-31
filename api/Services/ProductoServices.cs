@@ -9,7 +9,7 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
 {   
 
     private readonly InventarioOptions _opciones = options.Value;
-    public static List<Producto> _productos =
+    public readonly List<Producto> _productos =
     [
         new Producto(1, "Mouse", 50_000m, 10, 1),
         new Producto(2, "Teclado", 120_000m, 5, 1),
@@ -77,7 +77,7 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
     public IEnumerable<Producto> GetProductByCat(int id)
     {
      
-        return _productos.Where(p => p.Categoria == id).ToList();
+        return _productos.Where(p => p.CategoriaId == id).ToList();
     }
 
     

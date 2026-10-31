@@ -3,7 +3,7 @@ namespace Inventario.Api.Models;
 public class Categoria
 {
     
-    public int Id { set; get;}
+    public int Id {  get;}
     public string Nombre {private set; get;}
 
     public Categoria(int id, string name)
@@ -20,6 +20,8 @@ public class Categoria
 
     public void RenombrarCategoria(string nuevoNombre)
     {
+        if(string.IsNullOrWhiteSpace(nuevoNombre))
+            throw new ArgumentException("El nombre de la categoría es obligatorio", nameof(nuevoNombre));
         Nombre = nuevoNombre;
 
     }

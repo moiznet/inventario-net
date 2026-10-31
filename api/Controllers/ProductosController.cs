@@ -31,7 +31,7 @@ public class ProductosController( IProductoService productoService, ICategoriaSe
     [HttpPost]
     public ActionResult<ProductoResponse> CreateProducto(CrearProductoRequest request)
     {
-        if (categoriaService.getById(request.Categoria) is null)
+        if (categoriaService.ObtenerPorId(request.Categoria) is null)
             throw new ArgumentException($"La categoría {request.Categoria} no existe");
 
         var producto = productoService.Crear(request.Nombre, request.Precio, request.Stock, request.Categoria);

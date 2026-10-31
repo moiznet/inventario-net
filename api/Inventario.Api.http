@@ -1,190 +1,301 @@
 @baseUrl = http://localhost:5285
+@productos = {{baseUrl}}/api/productos
+@categorias = {{baseUrl}}/api/categoria
 
-# Los datos viven en memoria: al reiniciar la API vuelven los 3 productos iniciales
-# (1 Mouse, stock 10 · 2 Teclado, stock 5 · 3 Monitor, stock 3).
+# Los datos viven en memoria: al reiniciar la API vuelven los datos iniciales.
+#   Categorías: 1 Periféricos · 2 Pantallas
+#   Productos:  1 Mouse (cat 1, stock 10) · 2 Teclado (cat 1, stock 5) · 3 Monitor (cat 2, stock 3)
+# Corre las peticiones EN ORDEN, de arriba hacia abajo: algunas dependen de las anteriores.
+# Si renombras el controller a CategoriasController, cambia @categorias a /api/categorias.
 
-###############################################
-# LISTAR Y CONSULTAR
-###############################################
 
-### Listar todos → 200 (cada producto trae tieneStock)
-GET {{baseUrl}}/api/productos
+###############################################################
+# CATEGORÍAS: CONSULTAR
+###############################################################
+
+### Listar todas → 200 (Periféricos y Pantallas)
+GET {{categorias}}
 
 ### Obtener por Id (existe) → 200
-GET {{baseUrl}}/api/productos/1
+GET {{categorias}}/1
 
 ### Obtener por Id (no existe) → 404
-GET {{baseUrl}}/api/productos/99
+GET {{categorias}}/99
 
-###############################################
-# BUSCAR
-###############################################
+### Productos de una categoría → 200 (Mouse y Teclado)
+GET {{categorias}}/1/productos
+
+### Productos de una categoría que no existe → 404
+GET {{categorias}}/99/productos
+
+
+###############################################################
+# CATEGORÍAS: CREAR
+###############################################################
+
+### Crear categoría → 201 + header Location (queda con Id 3)
+POST {{categorias}}
+Content-Type: application/json
+
+{
+  "nombre": "Accesorios"
+}
+
+### Productos de una categoría que existe pero está vacía → 200 con lista vacía
+GET {{categorias}}/3/productos
+
+### Nombre repetido, igual → 400
+POST {{categorias}}
+Content-Type: application/json
+
+{
+  "nombre": "Pantallas"
+}
+
+### Nombre repetido, con otras mayúsculas → 400
+POST {{categorias}}
+Content-Type: application/json
+
+{
+  "nombre": "pantallas"
+}
+
+### Nombre vacío → 400 (validación del DTO)
+POST {{categorias}}
+Content-Type: application/json
+
+{
+  "nombre": ""
+}
+
+### Nombre de 1 letra → 400 (StringLength mínimo 2)
+POST {{categorias}}
+Content-Type: application/json
+
+{
+  "nombre": "A"
+}
+
+
+###############################################################
+# CATEGORÍAS: RENOMBRAR
+###############################################################
+
+### Renombrar → 204
+PUT {{categorias}}/3
+Content-Type: application/json
+
+{
+  "nombre": "Accesorios PC"
+}
+
+### Verificar el nuevo nombre → 200 con "Accesorios PC"
+GET {{categorias}}/3
+
+### Renombrar una que no existe → 404
+PUT {{categorias}}/99
+Content-Type: application/json
+
+{
+  "nombre": "No existe"
+}
+
+### Renombrar con nombre vacío → 400 (validación del DTO)
+PUT {{categorias}}/3
+Content-Type: application/json
+
+{
+  "nombre": ""
+}
+
+
+###############################################################
+# PRODUCTOS: CONSULTAR Y BUSCAR
+###############################################################
+
+### Listar todos → 200 (cada producto trae categoriaId y tieneStock)
+GET {{productos}}
+
+### Obtener por Id (existe) → 200
+GET {{productos}}/1
+
+### Obtener por Id (no existe) → 404
+GET {{productos}}/99
 
 ### Buscar por nombre (sin importar mayúsculas) → 200
-GET {{baseUrl}}/api/productos/buscar?nombre=TECLA
+GET {{productos}}/buscar?nombre=TECLA
 
 ### Buscar sin coincidencias → 200 con lista vacía
-GET {{baseUrl}}/api/productos/buscar?nombre=impresora
+GET {{productos}}/buscar?nombre=impresora
 
 ### Buscar sin el parámetro nombre → 400
-GET {{baseUrl}}/api/productos/buscar
+GET {{productos}}/buscar
 
-###############################################
-# CREAR
-###############################################
+### Stock bajo (umbral del appsettings) → 200
+GET {{productos}}/stock-bajo
 
-### Crear producto → 201 + header Location
-POST {{baseUrl}}/api/productos
+
+###############################################################
+# PRODUCTOS: CREAR
+###############################################################
+
+### Crear producto en una categoría que existe → 201 + header Location
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "Audífonos",
   "precio": 80000,
-  "stock": 7
+  "stock": 7,
+  "CategoriaId": 1
 }
 
 ### Crear con el precio mínimo permitido (0,01) → 201
-POST {{baseUrl}}/api/productos
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "Sticker",
   "precio": 0.01,
-  "stock": 100
+  "stock": 100,
+  "CategoriaId": 2
 }
 
-###############################################
-# CREAR: VALIDACIONES (DataAnnotations → 400 automático)
-###############################################
+### Ahora la categoría 1 tiene 3 productos → 200 (Mouse, Teclado, Audífonos)
+GET {{categorias}}/1/productos
+
+### Categoría que no existe → 400
+POST {{productos}}
+Content-Type: application/json
+
+{
+  "nombre": "Huérfano",
+  "precio": 5000,
+  "stock": 1,
+  "CategoriaId": 99
+}
+
+### Categoría en 0 → 400 (Range del DTO)
+POST {{productos}}
+Content-Type: application/json
+
+{
+  "nombre": "Sin categoría",
+  "precio": 5000,
+  "stock": 1,
+  "CategoriaId": 0
+}
+
+
+###############################################################
+# PRODUCTOS: VALIDACIONES (DataAnnotations → 400 automático)
+###############################################################
 
 ### Precio negativo → 400
-POST {{baseUrl}}/api/productos
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "Producto malo",
   "precio": -100,
-  "stock": 1
+  "stock": 1,
+  "CategoriaId": 1
 }
 
 ### Precio en cero → 400
-POST {{baseUrl}}/api/productos
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "Gratis",
   "precio": 0,
-  "stock": 1
-}
-
-### Precio mayor al máximo → 400
-POST {{baseUrl}}/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Carísimo",
-  "precio": 200000000,
-  "stock": 1
+  "stock": 1,
+  "CategoriaId": 1
 }
 
 ### Nombre vacío → 400
-POST {{baseUrl}}/api/productos
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "",
   "precio": 5000,
-  "stock": 1
-}
-
-### Stock negativo → 400
-POST {{baseUrl}}/api/productos
-Content-Type: application/json
-
-{
-  "nombre": "Cable",
-  "precio": 5000,
-  "stock": -5
+  "stock": 1,
+  "CategoriaId": 1
 }
 
 ### Varios errores a la vez → 400 con un error por campo
-POST {{baseUrl}}/api/productos
+POST {{productos}}
 Content-Type: application/json
 
 {
   "nombre": "",
   "precio": -1,
-  "stock": -1
+  "stock": -1,
+  "CategoriaId": 0
 }
 
-###############################################
-# DESCONTAR STOCK
-###############################################
+
+###############################################################
+# PRODUCTOS: DESCONTAR STOCK
+###############################################################
 
 ### Descontar stock válido → 200 con el producto actualizado
-POST {{baseUrl}}/api/productos/1/descontar-stock
+POST {{productos}}/1/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 2
 }
 
-### Descontar más de lo que hay → 409
-POST {{baseUrl}}/api/productos/3/descontar-stock
+### Descontar más de lo que hay → 409 (GlobalExceptionHandler)
+POST {{productos}}/3/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 10
 }
 
-### Descontar todo el stock → 200 con tieneStock en false
-POST {{baseUrl}}/api/productos/3/descontar-stock
+### Descontar todo el stock → 200 con tieneStock en false (y LogWarning en la terminal)
+POST {{productos}}/3/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 3
 }
 
-### Cantidad en cero → 400 (validación automática del DTO)
-POST {{baseUrl}}/api/productos/1/descontar-stock
+### Cantidad en cero → 400 (validación del DTO)
+POST {{productos}}/1/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 0
 }
 
-### Cantidad mayor a 1000 → 400 (validación automática del DTO)
-POST {{baseUrl}}/api/productos/1/descontar-stock
-Content-Type: application/json
-
-{
-  "cantidad": 2000
-}
-
-### Descontar de un producto que no existe → 404
-POST {{baseUrl}}/api/productos/99/descontar-stock
+### Producto que no existe → 404
+POST {{productos}}/99/descontar-stock
 Content-Type: application/json
 
 {
   "cantidad": 1
 }
 
-###############################################
+
+###############################################################
 # ELIMINAR (al final, porque borra datos)
-###############################################
+###############################################################
+
+### Eliminar una categoría con productos → 409
+DELETE {{categorias}}/2
+
+### Eliminar una categoría vacía (Accesorios PC) → 204
+DELETE {{categorias}}/3
+
+### Eliminar la misma otra vez → 404
+DELETE {{categorias}}/3
 
 ### Eliminar producto → 204
-DELETE {{baseUrl}}/api/productos/2
+DELETE {{productos}}/2
 
-### Eliminar el mismo otra vez → 404
-DELETE {{baseUrl}}/api/productos/2
-
-
-###############################################
-# STOCK BAJO 
-###############################################
-
-### Obtener stock bajo 
-GET {{baseUrl}}/api/productos/stock-bajo
-
- 
+### Eliminar el mismo producto otra vez → 404
+DELETE {{productos}}/2

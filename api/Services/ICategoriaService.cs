@@ -4,7 +4,7 @@ using Inventario.Api.Models;
 public  interface ICategoriaService
 {
     IEnumerable<Categoria> GetAll();
-    Categoria? getById(int  id);
+    Categoria? ObtenerPorId(int  id);
    
     Categoria CreateCategory(string nombre);
     bool UpdateCat(int id, string name);

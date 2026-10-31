@@ -3,7 +3,7 @@ using Inventario.Api.Services;
 using Inventario.Api.Models;
 
 
-public class CategoriaServices(ILogger<ProductoServices> logger): ICategoriaService 
+public class CategoriaServices(ILogger<CategoriaServices> logger): ICategoriaService 
 {   
 
     private readonly List<Categoria> _Categorias = [
@@ -15,7 +15,7 @@ public class CategoriaServices(ILogger<ProductoServices> logger): ICategoriaServ
         return _Categorias;
 
     }
-    public Categoria? getById(int id)
+    public Categoria? ObtenerPorId(int id)
     {
         return _Categorias.FirstOrDefault(p => p.Id == id);
     }
@@ -34,7 +34,7 @@ public class CategoriaServices(ILogger<ProductoServices> logger): ICategoriaServ
 
     public bool UpdateCat(int id, string name)
     {
-        var categoria = getById(id);
+        var categoria = ObtenerPorId(id);
         if(categoria == null)
         {
             return false;
@@ -61,16 +61,8 @@ public class CategoriaServices(ILogger<ProductoServices> logger): ICategoriaServ
 
     public bool ExistName(string nombre)
     {
-        var ExistName = _Categorias.Where(p=> p.Nombre == nombre).ToList();
+        return _Categorias.Any(c => string.Equals(c.Nombre, nombre, StringComparison.OrdinalIgnoreCase));
 
-        if (ExistName.Count <= 0 )
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
 
