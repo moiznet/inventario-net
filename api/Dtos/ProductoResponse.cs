@@ -1,6 +1,6 @@
 using Inventario.Api.Models;
 namespace Inventario.Api.Dtos;
-public record ProductoResponse(int Id, string Nombre, decimal Precio, int Stock, bool TieneStock){
+public record ProductoResponse(int Id, string Nombre, decimal Precio, int Stock, bool TieneStock, int CategoriaId){
     public static ProductoResponse Desde(Producto p) =>
-        new ProductoResponse(p.Id, p.Nombre, p.Precio, p.Stock, p.Stock > 0);
+        new ProductoResponse(p.Id, p.Nombre, p.Precio, p.Stock, p.Stock > 0, p.Categoria);
 }

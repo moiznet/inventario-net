@@ -11,5 +11,8 @@ public record CrearProductoRequest(
     
     
     [Range(0, 100_000, ErrorMessage = "El stock debe estar entre 0 y 100.000")]
-    int Stock
+    int Stock,
+
+    [Range(1,int.MaxValue)]
+    int Categoria
 );

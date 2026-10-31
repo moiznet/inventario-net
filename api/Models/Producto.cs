@@ -6,14 +6,16 @@ public class Producto
     public string Nombre { get; } = string.Empty;
     public decimal Precio { get; }
     public int Stock { get; private set; }
+    public int Categoria {get;}
  
 
-    public Producto(int id, string nombre, decimal precio, int stock)
+    public Producto(int id, string nombre, decimal precio, int stock, int categoria)
     {
         Id = id;
         Nombre = nombre;
         Precio = precio;
         Stock = stock;
+        Categoria = categoria;
     
 
         if (stock < 0){

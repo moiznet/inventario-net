@@ -1,6 +1,5 @@
 using Inventario.Api.Services ;
 using Inventario.Api.Options;
-using Scalar.AspNetCore;
 using Inventario.Api.Errores; 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,7 +21,7 @@ builder.Services.AddOptions<InventarioOptions>()                       // ← pa
     .ValidateOnStart();          
     
 builder.Services.AddSingleton<IProductoService, ProductoServices>(); // registra el servicio de productos como singleton    
- 
+builder.Services.AddSingleton<ICategoriaService, CategoriaServices>(); // registra el servicio de Categoria como singleton
 
 var app = builder.Build();
 

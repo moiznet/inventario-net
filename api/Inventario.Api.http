@@ -186,3 +186,5 @@ DELETE {{baseUrl}}/api/productos/2
 
 ### Obtener stock bajo 
 GET {{baseUrl}}/api/productos/stock-bajo
+
+ 

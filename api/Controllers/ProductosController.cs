@@ -7,7 +7,7 @@ namespace Inventario.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ProductosController( IProductoService productoService ) : ControllerBase
+public class ProductosController( IProductoService productoService, ICategoriaService categoriaService ) : ControllerBase
 {
     
     [HttpGet]
@@ -31,7 +31,10 @@ public class ProductosController( IProductoService productoService ) : Controlle
     [HttpPost]
     public ActionResult<ProductoResponse> CreateProducto(CrearProductoRequest request)
     {
-        var producto = productoService.Crear(request.Nombre, request.Precio, request.Stock);
+        if (categoriaService.getById(request.Categoria) is null)
+            throw new ArgumentException($"La categoría {request.Categoria} no existe");
+
+        var producto = productoService.Crear(request.Nombre, request.Precio, request.Stock, request.Categoria);
         return CreatedAtAction(nameof(GetById), new { id = producto.Id }, ProductoResponse.Desde(producto));    
     }
 
@@ -78,5 +81,7 @@ public class ProductosController( IProductoService productoService ) : Controlle
         return Ok(productos.Select(p => ProductoResponse.Desde(p) ).ToList());
 
     }
+
+    
 
 }

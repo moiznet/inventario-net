@@ -1,4 +1,5 @@
 
+using System.ComponentModel;
 using Inventario.Api.Models;
 using Inventario.Api.Options;
 using Microsoft.Extensions.Options;
@@ -8,11 +9,11 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
 {   
 
     private readonly InventarioOptions _opciones = options.Value;
-    private readonly List<Producto> _productos =
+    public static List<Producto> _productos =
     [
-        new Producto(1, "Mouse", 50_000m, 10),
-        new Producto(2, "Teclado", 120_000m, 5),
-        new Producto(3, "Monitor", 850_000m, 3)
+        new Producto(1, "Mouse", 50_000m, 10, 1),
+        new Producto(2, "Teclado", 120_000m, 5, 1),
+        new Producto(3, "Monitor", 850_000m, 3, 2)
     ];
     public IEnumerable<Producto> ObtenerTodos()
     {
@@ -24,10 +25,12 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
         return _productos.FirstOrDefault(p => p.Id == id);
     }
 
-    public Producto Crear(string nombre, decimal precio, int stock)
+    public Producto Crear(string nombre, decimal precio, int stock, int categoria)
     {
+        
+
         var nuevoId = _productos.Count == 0 ? 1 : _productos.Max(p => p.Id) + 1;
-        var producto = new Producto(nuevoId, nombre, precio, stock);
+        var producto = new Producto(nuevoId, nombre, precio, stock, categoria);
         _productos.Add(producto);
         logger.LogInformation("Producto creado: {Id} {Nombre}", producto.Id, producto.Nombre);
         return producto;
@@ -70,6 +73,14 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
         return _productos.Where(p => p.Stock <= _opciones.UmbralStockBajo);
 
     }
+
+    public IEnumerable<Producto> GetProductByCat(int id)
+    {
+     
+        return _productos.Where(p => p.Categoria == id).ToList();
+    }
+
+    
 
 
 
