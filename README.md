@@ -10,7 +10,11 @@ Gestión de productos y pedidos con reglas de stock. Proyecto en .NET 10 / C#.
 
 1. Base de datos
 copiar .env.example(con las claves correspondientes) a .env.
-docker compose up -d
+`docker compose up -d`
 2. Aplicacion
-cd Inventario.Consola
-dotnet run
+`cd api`
+`dotnet run`
+
+## Documentacion de Swagger 
+
+`http://localhost:5285/swagger`
