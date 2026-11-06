@@ -26,7 +26,6 @@ BEGIN TRY
     SELECT Nombre,Precio FROM Productos; 
     ROLLBACK;
     SELECT Nombre,Precio FROM Productos; 
-    COMMIT;
 END TRY
 BEGIN CATCH
     IF @@TRANCOUNT > 0 ROLLBACK;
@@ -75,6 +74,9 @@ BEGIN
 END;
 GO
 
-EXEC dbo.sp_CrearPedido @ClienteId = 5, @ProductoId = 6, @Cantidad = 2;
+-- Pruebas
+EXEC dbo.sp_CrearPedido @ClienteId = 5, @ProductoId = 6,  @Cantidad = 2;   -- válido
+EXEC dbo.sp_CrearPedido @ClienteId = 5, @ProductoId = 2,  @Cantidad = 50;  -- stock insuficiente
+EXEC dbo.sp_CrearPedido @ClienteId = 5, @ProductoId = 99, @Cantidad = 1;   -- no existe
 
  --
