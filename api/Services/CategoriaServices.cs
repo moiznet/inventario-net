@@ -7,8 +7,8 @@ public class CategoriaServices(ILogger<CategoriaServices> logger): ICategoriaSer
 {   
 
     private readonly List<Categoria> _Categorias = [
-        new Categoria(1,"Periféricos"),
-        new Categoria(2,"Pantallas")
+        // new Categoria(1,"Periféricos"),
+        // new Categoria(2,"Pantallas")
     ];
     public IEnumerable<Categoria> GetAll()
     {
@@ -24,11 +24,7 @@ public class CategoriaServices(ILogger<CategoriaServices> logger): ICategoriaSer
 
     public Categoria CreateCategory(string nombre)
     {
-        var NuevoId = _Categorias.Count == 0 ? 1 : _Categorias.Max(p => p.Id) + 1;
-        var NuevaCategoria = new Categoria(NuevoId,nombre);
-        _Categorias.Add(NuevaCategoria);
-        logger.LogInformation("Categoria creada: {NuevoId} {nombre}", NuevaCategoria.Id, NuevaCategoria.Nombre);
-        return NuevaCategoria;
+        throw new NotImplementedException("Se reescribe con EF Core en el tema 5");
 
     }
 

@@ -9,11 +9,11 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
 {   
 
     private readonly InventarioOptions _opciones = options.Value;
-    public readonly List<Producto> _productos =
+    private readonly List<Producto> _productos =
     [
-        new Producto(1, "Mouse", 50_000m, 10, 1),
-        new Producto(2, "Teclado", 120_000m, 5, 1),
-        new Producto(3, "Monitor", 850_000m, 3, 2)
+        // new Producto(1, "Mouse", 50_000m, 10, 1),
+        // new Producto(2, "Teclado", 120_000m, 5, 1),
+        // new Producto(3, "Monitor", 850_000m, 3, 2)
     ];
     public IEnumerable<Producto> ObtenerTodos()
     {
@@ -29,11 +29,7 @@ public class ProductoServices(IOptions<InventarioOptions> options, ILogger<Produ
     {
         
 
-        var nuevoId = _productos.Count == 0 ? 1 : _productos.Max(p => p.Id) + 1;
-        var producto = new Producto(nuevoId, nombre, precio, stock, categoria);
-        _productos.Add(producto);
-        logger.LogInformation("Producto creado: {Id} {Nombre}", producto.Id, producto.Nombre);
-        return producto;
+        throw new NotImplementedException("Se reescribe con EF Core en el tema 5");
     }
 
     public IEnumerable<Producto> ObtenerPorNombre(string nombre)

@@ -1,6 +1,9 @@
 using Inventario.Api.Services ;
 using Inventario.Api.Options;
 using Inventario.Api.Errores; 
+using Inventario.Api.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,6 +25,9 @@ builder.Services.AddOptions<InventarioOptions>()                       // ← pa
     
 builder.Services.AddSingleton<IProductoService, ProductoServices>(); // registra el servicio de productos como singleton    
 builder.Services.AddSingleton<ICategoriaService, CategoriaServices>(); // registra el servicio de Categoria como singleton
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))); // registro de DbContext con SQL Server
+
 
 var app = builder.Build();
 

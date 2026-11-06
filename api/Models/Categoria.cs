@@ -2,18 +2,16 @@ namespace Inventario.Api.Models;
 
 public class Categoria
 {
-    
-    public int Id {  get;}
-    public string Nombre {private set; get;}
+    public int Id { get; private set; }
+    public string Nombre { get; private set; } = string.Empty;
 
-    public Categoria(int id, string name)
+    public List<Producto> Productos { get; private set; } = [];   // ← navegación: sus productos
+
+    public Categoria(string nombre)
     {
-        if(string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("El nombre de la categoría es obligatorio", nameof(name));
-
-        Id = id;
-        Nombre = name;
-
+        if (string.IsNullOrWhiteSpace(nombre))
+            throw new ArgumentException("El nombre de la categoría es obligatorio", nameof(nombre));
+        Nombre = nombre;
     }
 
 
