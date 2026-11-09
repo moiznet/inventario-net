@@ -11,7 +11,7 @@ public class Producto
     public int CategoriaId { get; private set; }
 
     public Categoria? Categoria { get; private set; }     // ← navegación: su categoría
- 
+    public List<Etiqueta> Etiquetas { get; private set; } = [];   // ← sus muchas etiquetas
 
      public Producto(string nombre, decimal precio, int stock, int categoriaId)   // ← sin id
     {
@@ -39,6 +39,11 @@ public class Producto
             }
 
             Stock -= cantidad;
+    }
+    public void AgregarEtiqueta(Etiqueta etiqueta)
+    {
+        if (!Etiquetas.Contains(etiqueta))
+            Etiquetas.Add(etiqueta);
     }
   
 }

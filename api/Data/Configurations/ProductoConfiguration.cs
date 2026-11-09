@@ -27,5 +27,9 @@ public class ProductoConfiguration : IEntityTypeConfiguration<Producto>
                .WithMany(c => c.Productos)        // una categoría tiene MUCHOS productos
                .HasForeignKey(p => p.CategoriaId) // unidos por esta columna
                .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(p => p.Etiquetas)        // un producto tiene MUCHAS etiquetas
+               .WithMany(e => e.Productos)       // una etiqueta tiene MUCHOS productos
+               .UsingEntity(j => j.ToTable("ProductoEtiquetas"));
     }
 }

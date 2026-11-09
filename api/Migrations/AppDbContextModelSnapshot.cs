@@ -21,6 +21,21 @@ namespace Inventario.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("EtiquetaProducto", b =>
+                {
+                    b.Property<int>("EtiquetasId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductosId")
+                        .HasColumnType("int");
+
+                    b.HasKey("EtiquetasId", "ProductosId");
+
+                    b.HasIndex("ProductosId");
+
+                    b.ToTable("ProductoEtiquetas", (string)null);
+                });
+
             modelBuilder.Entity("Inventario.Api.Models.Categoria", b =>
                 {
                     b.Property<int>("Id")
@@ -59,6 +74,44 @@ namespace Inventario.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Inventario.Api.Models.Etiqueta", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nombre")
+                        .IsUnique();
+
+                    b.ToTable("Etiquetas", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Nombre = "Inalámbrico"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Nombre = "Oferta"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Nombre = "Gamer"
+                        });
+                });
+
             modelBuilder.Entity("Inventario.Api.Models.Producto", b =>
                 {
                     b.Property<int>("Id")
@@ -92,6 +145,21 @@ namespace Inventario.Api.Migrations
 
                             t.HasCheckConstraint("CK_Productos_Stock", "[Stock] >= 0");
                         });
+                });
+
+            modelBuilder.Entity("EtiquetaProducto", b =>
+                {
+                    b.HasOne("Inventario.Api.Models.Etiqueta", null)
+                        .WithMany()
+                        .HasForeignKey("EtiquetasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Inventario.Api.Models.Producto", null)
+                        .WithMany()
+                        .HasForeignKey("ProductosId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Inventario.Api.Models.Producto", b =>
