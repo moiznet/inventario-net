@@ -37,9 +37,9 @@ public class PruebasEfController(AppDbContext db) : ControllerBase
             .GroupBy(p => 1) // Agrupa todos los registros en un solo bloque (toda la tabla)
             .Select(g => new 
             { 
-                Total = g.Count(), // Cuenta cuántos registros tiene ese bloque (toda la tabla)
-                Agotados = g.Count(p => p.Stock == 0),// Cuenta cuántos registros tienen stock = 0 
-                precioMaximo = g.Max(p => p.Precio)
+                total = g.Count(), // Cuenta cuántos registros tiene ese bloque (toda la tabla)
+                agotados = g.Count(p => p.Stock == 0),// Cuenta cuántos registros tienen stock = 0 
+                preciomaximo = g.Max(p => p.Precio)
             })
             .ToListAsync();   
             return Ok(resumen);
