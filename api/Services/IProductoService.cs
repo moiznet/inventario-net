@@ -12,4 +12,5 @@ public interface IProductoService
     Task<Producto?> QuitarDeStockAsync(int id, int cantidad, CancellationToken ct = default);
     Task<List<Producto>> ObtenerStockBajoAsync(CancellationToken ct = default);
     Task<List<Producto>> ObtenerPorCategoriaAsync(int categoriaId, CancellationToken ct = default);
+    Task<bool> ExistenEnCategoriaAsync(int categoriaId, CancellationToken ct = default);
 }

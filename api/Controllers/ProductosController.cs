@@ -10,7 +10,7 @@ namespace Inventario.Api.Controllers;
 public class ProductosController( IProductoService productoService, ICategoriaService categoriaService ) : ControllerBase
 {
     
-    [HttpGet]
+
     [HttpGet]
     public async Task<IEnumerable<ProductoResponse>> GetAll(CancellationToken ct)
     {

@@ -70,4 +70,7 @@ public class ProductoServices(
 
         return producto;
     }
+
+    public Task<bool> ExistenEnCategoriaAsync(int categoriaId, CancellationToken ct = default) =>
+    db.Productos.AnyAsync(p => p.CategoriaId == categoriaId, ct);
 }

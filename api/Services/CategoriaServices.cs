@@ -58,7 +58,7 @@ public class CategoriaServices(AppDbContext db, ILogger<CategoriaServices> logge
 
     public async Task<bool> ExisteNombreAsync(string nombre, CancellationToken ct = default)
     {
-        return await db.Categorias.AnyAsync(c => string.Equals(c.Nombre, nombre), ct);
+        return await db.Categorias.AnyAsync(c => c.Nombre == nombre, ct);
     }
 
 
