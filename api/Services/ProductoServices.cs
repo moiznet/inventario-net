@@ -1,83 +1,73 @@
-
-using System.ComponentModel;
+// api/Services/ProductoServices.cs
+using Inventario.Api.Data;
 using Inventario.Api.Models;
 using Inventario.Api.Options;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
 namespace Inventario.Api.Services;
 
-public class ProductoServices(IOptions<InventarioOptions> options, ILogger<ProductoServices> logger): IProductoService
-{   
-
+public class ProductoServices(
+    AppDbContext db,
+    IOptions<InventarioOptions> options,
+    ILogger<ProductoServices> logger) : IProductoService
+{
     private readonly InventarioOptions _opciones = options.Value;
-    private readonly List<Producto> _productos =
-    [
-        // new Producto(1, "Mouse", 50_000m, 10, 1),
-        // new Producto(2, "Teclado", 120_000m, 5, 1),
-        // new Producto(3, "Monitor", 850_000m, 3, 2)
-    ];
-    public IEnumerable<Producto> ObtenerTodos()
+
+    // ── LECTURAS: AsNoTracking, porque solo leemos ──
+
+    public Task<List<Producto>> ObtenerTodosAsync(CancellationToken ct = default) =>
+        db.Productos.AsNoTracking().OrderBy(p => p.Id).ToListAsync(ct);
+
+    public Task<Producto?> ObtenerPorIdAsync(int id, CancellationToken ct = default) =>
+        db.Productos.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
+
+    public Task<List<Producto>> ObtenerPorNombreAsync(string nombre, CancellationToken ct = default) =>
+        db.Productos.AsNoTracking().Where(p => p.Nombre.Contains(nombre)).ToListAsync(ct);
+
+    public Task<List<Producto>> ObtenerStockBajoAsync(CancellationToken ct = default) =>
+        db.Productos.AsNoTracking().Where(p => p.Stock <= _opciones.UmbralStockBajo).ToListAsync(ct);
+
+    public Task<List<Producto>> ObtenerPorCategoriaAsync(int categoriaId, CancellationToken ct = default) =>
+        db.Productos.AsNoTracking().Where(p => p.CategoriaId == categoriaId).ToListAsync(ct);
+
+    // ── ESCRITURAS: con tracking, y SaveChangesAsync al final ──
+
+    public async Task<Producto> CrearAsync(string nombre, decimal precio, int stock, int categoriaId, CancellationToken ct = default)
     {
-       return _productos;
+        var producto = new Producto(nombre, precio, stock, categoriaId);
+        db.Productos.Add(producto);
+        await db.SaveChangesAsync(ct);   // aquí SQL Server le asigna el Id
+
+        logger.LogInformation("Producto creado: {Id} {Nombre}", producto.Id, producto.Nombre);
+        return producto;
     }
 
-    public Producto? ObtenerPorId(int id)
+    public async Task<bool> EliminarAsync(int id, CancellationToken ct = default)
     {
-        return _productos.FirstOrDefault(p => p.Id == id);
-    }
-
-    public Producto Crear(string nombre, decimal precio, int stock, int categoria)
-    {
-        
-
-        throw new NotImplementedException("Se reescribe con EF Core en el tema 5");
-    }
-
-    public IEnumerable<Producto> ObtenerPorNombre(string nombre)
-    {
-       List<Producto> productos = _productos.Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase)).ToList(); 
-       return productos;
-    }
-
-    public bool Eliminar(int id)
-    {
-        var producto = _productos.FirstOrDefault(p => p.Id == id);
-        if (producto == null)
-        {
+        var producto = await db.Productos.FindAsync([id], ct);
+        if (producto is null)
             return false;
-        }
-        _productos.Remove(producto);
+
+        db.Productos.Remove(producto);
+        await db.SaveChangesAsync(ct);
+
         logger.LogInformation("Producto eliminado: {Id} {Nombre}", producto.Id, producto.Nombre);
         return true;
     }
-    public Producto? QuitarDeStock(int id, int cantidad)
+
+    public async Task<Producto?> QuitarDeStockAsync(int id, int cantidad, CancellationToken ct = default)
     {
-        var producto = _productos.FirstOrDefault(p => p.Id == id);
-        if (producto == null)
-        {
+        var producto = await db.Productos.FindAsync([id], ct);   // rastreado: EF Core guarda la copia
+        if (producto is null)
             return null;
-        }
-        producto.DescontarStock(cantidad);
+
+        producto.DescontarStock(cantidad);   // tu regla de negocio, sin tocarla
+        await db.SaveChangesAsync(ct);       // EF Core detecta que Stock cambió → UPDATE
+
         if (producto.Stock == 0)
-            logger.LogWarning("Producto Agotado en Stock: {Id} {Nombre}", producto.Id, producto.Nombre);
-        
+            logger.LogWarning("Producto agotado: {Id} {Nombre}", producto.Id, producto.Nombre);
+
         return producto;
-
-     
     }
-    public IEnumerable<Producto> ObtenerStockBajo()
-    {
-        return _productos.Where(p => p.Stock <= _opciones.UmbralStockBajo);
-
-    }
-
-    public IEnumerable<Producto> GetProductByCat(int id)
-    {
-     
-        return _productos.Where(p => p.CategoriaId == id).ToList();
-    }
-
-    
-
-
-
 }

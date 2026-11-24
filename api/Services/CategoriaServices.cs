@@ -1,64 +1,64 @@
 namespace Inventario.Api.Services;
 using Inventario.Api.Services;
 using Inventario.Api.Models;
+using Inventario.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
-
-public class CategoriaServices(ILogger<CategoriaServices> logger): ICategoriaService 
+public class CategoriaServices(AppDbContext db, ILogger<CategoriaServices> logger): ICategoriaService 
 {   
 
-    private readonly List<Categoria> _Categorias = [
-        // new Categoria(1,"Periféricos"),
-        // new Categoria(2,"Pantallas")
-    ];
-    public IEnumerable<Categoria> GetAll()
+   
+    public Task<List<Categoria>> ObtenerTodasAsync(CancellationToken ct = default)
     {
-        return _Categorias;
-
+        return db.Categorias.AsNoTracking().ToListAsync(ct);
     }
-    public Categoria? ObtenerPorId(int id)
+  
+    public Task<Categoria?> ObtenerPorIdAsync(int id, CancellationToken ct = default)
     {
-        return _Categorias.FirstOrDefault(p => p.Id == id);
+        return db.Categorias.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
-    
-
-    public Categoria CreateCategory(string nombre)
+    public async Task<Categoria> CrearAsync(string nombre, CancellationToken ct = default)
     {
-        throw new NotImplementedException("Se reescribe con EF Core en el tema 5");
-
+        var categoria = new Categoria(nombre);
+        db.Categorias.Add(categoria);
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("Categoria creada: {Id} {Nombre}", categoria.Id, categoria.Nombre);
+        return categoria;
     }
 
-    public bool UpdateCat(int id, string name)
+    public async Task<bool> RenombrarAsync(int id, string name, CancellationToken ct = default)
     {
-        var categoria = ObtenerPorId(id);
+        var categoria = await db.Categorias.FindAsync([id], ct);
         if(categoria == null)
         {
             return false;
         }
         
-            categoria.RenombrarCategoria(name);
-            return true;
-        
-        
+        categoria.RenombrarCategoria(name);
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("Categoria renombrada: {Id} {Nombre}", categoria.Id, categoria.Nombre);
+        return true;
 
     }
 
-    public bool  DeleteCategoria(int id)
+    public async Task<bool> EliminarAsync(int id, CancellationToken ct = default)
     {
-        var categoria = _Categorias.FirstOrDefault(p => p.Id == id);
+        var categoria = await db.Categorias.FindAsync([id], ct);
         if (categoria is null)
-        return false;
-         
-        return _Categorias.Remove(categoria);
-       
-        
+            return false;
 
+        db.Categorias.Remove(categoria);
+        await db.SaveChangesAsync(ct);
+        logger.LogInformation("Categoria eliminada: {Id} {Nombre}", categoria.Id, categoria.Nombre);
+        return true;
     }
 
-    public bool ExistName(string nombre)
-    {
-        return _Categorias.Any(c => string.Equals(c.Nombre, nombre, StringComparison.OrdinalIgnoreCase));
+        
 
+    public async Task<bool> ExisteNombreAsync(string nombre, CancellationToken ct = default)
+    {
+        return await db.Categorias.AnyAsync(c => string.Equals(c.Nombre, nombre), ct);
     }
 
 

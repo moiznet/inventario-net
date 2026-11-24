@@ -23,8 +23,8 @@ builder.Services.AddOptions<InventarioOptions>()                       // ← pa
     .ValidateDataAnnotations()
     .ValidateOnStart();          
     
-builder.Services.AddSingleton<IProductoService, ProductoServices>(); // registra el servicio de productos como singleton    
-builder.Services.AddSingleton<ICategoriaService, CategoriaServices>(); // registra el servicio de Categoria como singleton
+builder.Services.AddScoped<IProductoService, ProductoServices>();   // scope por que usan dbcontext
+builder.Services.AddScoped<ICategoriaService, CategoriaServices>(); // scope por que usan dbcontext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"))); // registro de DbContext con SQL Server
 

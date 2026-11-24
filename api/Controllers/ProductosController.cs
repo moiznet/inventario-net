@@ -11,75 +11,66 @@ public class ProductosController( IProductoService productoService, ICategoriaSe
 {
     
     [HttpGet]
-    public IEnumerable<ProductoResponse> GetAll()
+    [HttpGet]
+    public async Task<IEnumerable<ProductoResponse>> GetAll(CancellationToken ct)
     {
-        return productoService.ObtenerTodos().Select(p => ProductoResponse.Desde(p)).ToList();
+        var productos = await productoService.ObtenerTodosAsync(ct);
+        return productos.Select(ProductoResponse.Desde).ToList();
     }
 
     [HttpGet("{id}")]
-    public ActionResult<ProductoResponse> GetById(int id)
-    {   
-
-        var producto = productoService.ObtenerPorId(id);
-        if (producto == null)
-        {
+    public async Task<ActionResult<ProductoResponse>> GetById(int id, CancellationToken ct)
+    {
+        var producto = await productoService.ObtenerPorIdAsync(id, ct);
+        if (producto is null)
             return NotFound();
-        }
         return ProductoResponse.Desde(producto);
     }
 
+
     [HttpPost]
-    public ActionResult<ProductoResponse> CreateProducto(CrearProductoRequest request)
+    public async Task<ActionResult<ProductoResponse>> CreateProducto(CrearProductoRequest request, CancellationToken ct)
     {
-        if (categoriaService.ObtenerPorId(request.Categoria) is null)
+        if (await categoriaService.ObtenerPorIdAsync(request.Categoria, ct) is null)
             throw new ArgumentException($"La categoría {request.Categoria} no existe");
 
-        var producto = productoService.Crear(request.Nombre, request.Precio, request.Stock, request.Categoria);
-        return CreatedAtAction(nameof(GetById), new { id = producto.Id }, ProductoResponse.Desde(producto));    
+        var producto = await productoService.CrearAsync(request.Nombre, request.Precio, request.Stock, request.Categoria, ct);
+        return CreatedAtAction(nameof(GetById), new { id = producto.Id }, ProductoResponse.Desde(producto));
     }
 
     [HttpGet("buscar")]
-    public ActionResult<IEnumerable<ProductoResponse>> GetByName(string? nombre)
+    public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetByName(string? nombre, CancellationToken ct)
     {   
         if (string.IsNullOrWhiteSpace(nombre))
         return BadRequest("Debes enviar el parámetro 'nombre'.");
 
-        var productos = productoService.ObtenerPorNombre(nombre);
+        var productos = await productoService.ObtenerPorNombreAsync(nombre, ct);
         return productos.Select(p => ProductoResponse.Desde(p)).ToList();
     }
 
     [HttpDelete("{id}")]
-    public ActionResult DeleteProducto(int id)
+    public  async Task<ActionResult>  DeleteProducto(int id, CancellationToken ct)
     {
-        var producto = productoService.Eliminar(id);
-        if (producto == false)
-        {
+        var producto = await productoService.EliminarAsync(id, ct);
+        if (producto is false)
             return NotFound();
-        }
         return NoContent();
-
     }
 
     [HttpPost("{id}/descontar-stock")]
-    public ActionResult<ProductoResponse> DescontarStock(int id, DescontarStockRequest request)
+    public async Task<ActionResult<ProductoResponse>> DescontarStock(int id, DescontarStockRequest request, CancellationToken ct)
     {
-       
-       
-            var producto = productoService.QuitarDeStock(id, request.Cantidad);
-            if (producto == null)
-            {
-                return NotFound();
-            }
-            return Ok(ProductoResponse.Desde(producto));
-       
+        var producto = await productoService.QuitarDeStockAsync(id, request.Cantidad, ct);
+        if (producto is null)
+            return NotFound();
+        return Ok(ProductoResponse.Desde(producto));
     }
 
     [HttpGet("stock-bajo")]
-    public ActionResult<IEnumerable<ProductoResponse>> GetStockBajo()
+    public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetStockBajo(CancellationToken ct)
     {
-        var productos = productoService.ObtenerStockBajo();
-        return Ok(productos.Select(p => ProductoResponse.Desde(p) ).ToList());
-
+        var productos = await productoService.ObtenerStockBajoAsync(ct);
+        return Ok(productos.Select(p => ProductoResponse.Desde(p)).ToList());
     }
 
     

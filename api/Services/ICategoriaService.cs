@@ -1,13 +1,12 @@
 namespace Inventario.Api.Services;
 using Inventario.Api.Models;
  
-public  interface ICategoriaService
+public interface ICategoriaService
 {
-    IEnumerable<Categoria> GetAll();
-    Categoria? ObtenerPorId(int  id);
-   
-    Categoria CreateCategory(string nombre);
-    bool UpdateCat(int id, string name);
-    bool DeleteCategoria(int id);
-    bool ExistName(string name);
+    Task<List<Categoria>> ObtenerTodasAsync(CancellationToken ct = default);
+    Task<Categoria?> ObtenerPorIdAsync(int id, CancellationToken ct = default);
+    Task<Categoria> CrearAsync(string nombre, CancellationToken ct = default);
+    Task<bool> RenombrarAsync(int id, string nombre, CancellationToken ct = default);
+    Task<bool> EliminarAsync(int id, CancellationToken ct = default);
+    Task<bool> ExisteNombreAsync(string nombre, CancellationToken ct = default);
 }

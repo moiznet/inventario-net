@@ -10,45 +10,47 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
 {
     
     [HttpGet]
-    public IEnumerable<CategoriaResponse> GetCategories()
+    public async Task<ActionResult<IEnumerable<CategoriaResponse>>> GetCategories(CancellationToken ct)
     {
-        return categoriaService.GetAll().Select(p => CategoriaResponse.Desde(p)).ToList();
+        var categorias = await categoriaService.ObtenerTodasAsync(ct);
+        return Ok(categorias.Select(c => CategoriaResponse.Desde(c)).ToList());
     }
-
+   
     [HttpGet("{id}")]
-    public ActionResult<CategoriaResponse> GetCategoriaPorId(int id)
+    public async Task<ActionResult<CategoriaResponse>> GetCategoriaPorId(int id, CancellationToken ct)
     {
-        var categoria = categoriaService.ObtenerPorId(id);
+        var categoria = await categoriaService.ObtenerPorIdAsync(id, ct);
         if(categoria == null)
         {
             return NotFound();
         }
         return CategoriaResponse.Desde(categoria);
-
     }
+    
+    
     [HttpGet("{id}/productos")]
-    public ActionResult<IEnumerable<ProductoResponse>> GetProductosDeCategoria(int id)
+    public async Task<ActionResult<IEnumerable<ProductoResponse>>> GetProductosDeCategoria(int id, CancellationToken ct)
     {   
-        if (categoriaService.ObtenerPorId(id) is null)  
+        if (await productoService.ObtenerPorCategoriaAsync(id, ct) is null)  
             return NotFound();
 
-        return productoService.GetProductByCat(id).Select(p => ProductoResponse.Desde(p)).ToList();
+        return (await productoService.ObtenerPorCategoriaAsync(id, ct)).Select(p => ProductoResponse.Desde(p)).ToList();
 
     }
     [HttpPost]
-    public ActionResult<CategoriaResponse> Crearcategoria(CrearCategoriaRequest request){
+    public async Task<ActionResult> Crearcategoria(CrearCategoriaRequest request, CancellationToken ct){
 
-        if (categoriaService.ExistName(request.Nombre))
+        if (await categoriaService.ExisteNombreAsync(request.Nombre, ct))
             throw new ArgumentException($"El nombre de categoria {request.Nombre} ya existe");
 
-        var NuevaCat = categoriaService.CreateCategory(request.Nombre);
+        var NuevaCat = await categoriaService.CrearAsync(request.Nombre, ct);
         return CreatedAtAction(nameof(GetCategoriaPorId), new { id = NuevaCat.Id }, CategoriaResponse.Desde(NuevaCat));    
 
     }
     [HttpPut("{id}")]
-    public IActionResult UpdateCategoria(int id, CrearCategoriaRequest request )
+    public async Task<IActionResult> UpdateCategoria(int id, CrearCategoriaRequest request, CancellationToken ct )
     {
-        var udated = categoriaService.UpdateCat(id,request.Nombre);
+        var udated = await categoriaService.RenombrarAsync(id,request.Nombre, ct);
         if(udated == false)
         {
             return NotFound();
@@ -56,14 +58,15 @@ public class CategoriaController(ICategoriaService categoriaService, IProductoSe
         return NoContent(); 
 
     }
+    
     [HttpDelete("{id}")]
-    public IActionResult EliminarCategoria(int id)
+    public async Task<IActionResult> EliminarCategoria(int id, CancellationToken ct)
     {
  
-        if (productoService.GetProductByCat(id).Any())
-        return Conflict("No se puede eliminar una categoría que tiene productos.");
+        if (await productoService.ObtenerPorCategoriaAsync(id,ct) != null)
+            return Conflict("No se puede eliminar una categoría que tiene productos.");
 
-        if(!categoriaService.DeleteCategoria(id))
+        if(!await categoriaService.EliminarAsync(id, ct))
             return NotFound();
 
 
